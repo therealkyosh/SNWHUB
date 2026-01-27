@@ -1,0 +1,135 @@
+-- Multi-Game SNW Loader (supports 4 games / new player server)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Game configs
+local games = {
+    [127923214014857] = {
+        name = "+1 Speed Laser Escape",
+        script_url = "https://pastebin.com/raw/hTKdZ9tz"
+    },
+    [109983668079237] = {
+        name = "Steal A Brainrot",
+        script_url = "https://pastebin.com/raw/NjEddcXb"
+    },
+    [96342491571673] = {
+        name = "Steal A Brainrot [New Player Server]",
+        script_url = "https://pastebin.com/raw/NjEddcXb"
+    },
+    [119579217517090] = { -- Updated PlaceId for Escape Wave For Lucky Block
+        name = "Escape Wave For Lucky Block",
+        script_url = "https://pastebin.com/raw/Wp4abmUY"
+    }
+}
+
+local LOAD_TIME = 7
+
+-- GUI setup
+local gui = Instance.new("ScreenGui", playerGui)
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0.45, 0, 0.3, 0)
+frame.Position = UDim2.new(0.275, 0, 0.35, 0)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+frame.BorderSizePixel = 3
+
+-- Outline animation (Blue → White → Light Blue)
+task.spawn(function()
+    local colors = {
+        Color3.fromRGB(0, 170, 255),
+        Color3.fromRGB(255, 255, 255),
+        Color3.fromRGB(150, 220, 255)
+    }
+    local i = 1
+    while frame.Parent do
+        frame.BorderColor3 = colors[i]
+        i = (i % #colors) + 1
+        task.wait(0.6)
+    end
+end)
+
+-- Title
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0.25, 0)
+title.BackgroundTransparency = 1
+title.Text = "SNW Multi Loader"
+title.Font = Enum.Font.Cartoon
+title.TextScaled = true
+title.TextColor3 = Color3.new(1, 1, 1)
+
+-- Status
+local status = Instance.new("TextLabel", frame)
+status.Size = UDim2.new(1, 0, 0.22, 0)
+status.Position = UDim2.new(0, 0, 0.3, 0)
+status.BackgroundTransparency = 1
+status.Font = Enum.Font.Cartoon
+status.TextScaled = true
+status.TextColor3 = Color3.new(1, 1, 1)
+status.Text = "Initializing..."
+
+-- Progress bar background
+local barBG = Instance.new("Frame", frame)
+barBG.Size = UDim2.new(0.85, 0, 0.12, 0)
+barBG.Position = UDim2.new(0.075, 0, 0.6, 0)
+barBG.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+barBG.BorderSizePixel = 0
+
+-- Progress bar
+local bar = Instance.new("Frame", barBG)
+bar.Size = UDim2.new(0, 0, 1, 0)
+bar.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+bar.BorderSizePixel = 0
+
+-- Loader logic
+local start = tick()
+local conn
+
+conn = RunService.RenderStepped:Connect(function()
+    local elapsed = tick() - start
+    local progress = math.clamp(elapsed / LOAD_TIME, 0, 1)
+    bar.Size = UDim2.new(progress, 0, 1, 0)
+
+    local placeId = game.PlaceId
+    local gameData = games[placeId]
+
+    -- Status messages
+    if progress < 0.25 then
+        status.Text = "Hello " .. player.DisplayName
+    elseif progress < 0.5 then
+        status.Text = "Scanning game..."
+    elseif progress < 0.7 then
+        status.Text = gameData and "Game Detected!" or "Unknown Game"
+    else
+        status.Text = gameData and ("Loading " .. gameData.name) or "No Script Available"
+    end
+
+    -- Finish
+    if progress >= 1 then
+        conn:Disconnect()
+
+        if not gameData then
+            frame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+            status.Text = "Unsupported Game - Closing"
+            task.wait(2)
+            gui:Destroy()
+            return
+        end
+
+        task.wait(0.3)
+        gui:Destroy()
+
+        -- Execute the correct script
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(gameData.script_url))()
+        end)
+
+        if not success then
+            warn("Script load failed: " .. tostring(err))
+        end
+    end
+end)
