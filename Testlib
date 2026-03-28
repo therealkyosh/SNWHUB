@@ -1,0 +1,165 @@
+-- ProjectET Library (v1.1 - Library Style)
+-- Usage example at the bottom
+
+local Library = {}
+
+local UIS = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+local function CreateInstance(class, props)
+	local obj = Instance.new(class)
+	for k, v in pairs(props or {}) do
+		obj[k] = v
+	end
+	return obj
+end
+
+function Library:CreateWindow(config)
+	config = config or {}
+	local Window = {}
+	
+	local ScreenGui = CreateInstance("ScreenGui", {
+		Name = config.Name or "ProjectET",
+		Parent = CoreGui,
+		ResetOnSpawn = false
+	})
+	
+	local Main = CreateInstance("Frame", {
+		Name = "Main",
+		Size = UDim2.new(0, 500, 0, 300),
+		Position = UDim2.new(0.5, -250, 0.5, -150),
+		BackgroundColor3 = Color3.fromRGB(12, 12, 12),
+		BorderSizePixel = 0,
+		Active = true,
+		Parent = ScreenGui
+	})
+	Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 8)
+	
+	local Stroke = Instance.new("UIStroke", Main)
+	Stroke.Color = Color3.fromRGB(255, 255, 255)
+	Stroke.Thickness = 1.5
+	
+	-- Toggle Button (outside main)
+	local ToggleBtn = CreateInstance("TextButton", {
+		Size = UDim2.new(0, 40, 0, 40),
+		Position = UDim2.new(0, 20, 0, 20),
+		BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+		Text = "",
+		Parent = ScreenGui
+	})
+	Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 8)
+	local TStroke = Instance.new("UIStroke", ToggleBtn)
+	TStroke.Color = Color3.fromRGB(255, 255, 255)
+	TStroke.Thickness = 1.5
+	
+	local Logo = CreateInstance("ImageLabel", {
+		Size = UDim2.new(0, 26, 0, 26),
+		Position = UDim2.new(0.5, -13, 0.5, -13),
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://90854014659104",
+		Parent = ToggleBtn
+	})
+	
+	-- Title Bar
+	local TitleBar = CreateInstance("Frame", {
+		Size = UDim2.new(1, 0, 0, 38),
+		BackgroundColor3 = Color3.fromRGB(18, 18, 18),
+		BorderSizePixel = 0,
+		Parent = Main
+	})
+	Instance.new("UICorner", TitleBar).CornerRadius = UDim.new(0, 8)
+	
+	CreateInstance("ImageLabel", {
+		Size = UDim2.new(0, 22, 0, 22),
+		Position = UDim2.new(0, 10, 0.5, -11),
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://90854014659104",
+		Parent = TitleBar
+	})
+	
+	CreateInstance("TextLabel", {
+		Position = UDim2.new(0, 40, 0, 0),
+		Size = UDim2.new(1, -50, 1, 0),
+		BackgroundTransparency = 1,
+		Text = config.Title or "Project ET",
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+		Font = Enum.Font.GothamBold,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = TitleBar
+	})
+	
+	-- Sidebar + Page Container (same as your original)
+	local Sidebar = CreateInstance("Frame", { ... }) -- copy your Sidebar code here
+	local PageContainer = CreateInstance("Frame", { ... }) -- copy your PageContainer code
+	
+	-- Draggable
+	local function MakeDraggable(frame)
+		-- your existing MakeDraggable function
+	end
+	MakeDraggable(Main)
+	MakeDraggable(ToggleBtn)
+	
+	ToggleBtn.MouseButton1Click:Connect(function()
+		Main.Visible = not Main.Visible
+	end)
+	
+	-- Tab system
+	local Tabs = {}
+	function Window:CreateTab(name)
+		local TabBtn = CreateInstance("TextButton", { ... }) -- copy your AddTab logic
+		local Page = CreateInstance("ScrollingFrame", { ... })
+		
+		-- ... rest of tab creation
+		
+		local TabObject = {
+			Page = Page,
+			AddHeader = function(self, text) 
+				-- your AddHeader but on self.Page
+			end,
+			AddButton = function(self, text, callback)
+				-- your AddButton on self.Page
+			end,
+			AddToggle = function(self, text, default, callback)
+				-- your AddToggle on self.Page
+			end,
+			AddTextbox = function(self, text, placeholder, callback)
+				-- your AddTextBox
+			end,
+			-- you can add more: Slider, Dropdown, etc. later
+		}
+		
+		table.insert(Tabs, TabObject)
+		return TabObject
+	end
+	
+	-- Rainbow + loops (you can expose _G or make a Settings table)
+	local RainbowEnabled = false
+	-- ... your RunService.Heartbeat loop here, but make RainbowEnabled configurable
+	
+	return Window
+end
+
+-- Example Usage (how a user would load your library)
+--[[
+local ET = Library:CreateWindow({
+	Title = "Project ET v3"
+})
+
+local MainTab = ET:CreateTab("Main")
+MainTab:AddHeader("Player Information")
+MainTab:AddButton("Test Button", function()
+	print("Clicked!")
+end)
+
+local PlayerTab = ET:CreateTab("Player")
+-- etc.
+]]
+
+return Library
