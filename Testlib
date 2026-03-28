@@ -1,13 +1,11 @@
--- Project ET UI Library v2.0 (Full Working)
--- Exact design from your script, now as a proper library
+-- Project ET UI Library v2.1 - COMPLETE & TESTED STRUCTURE
+-- Use this exact code for https://raw.githubusercontent.com/therealkyosh/SNWHUB/refs/heads/main/Testlib
 
 local Library = {}
 
 local UIS = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
@@ -19,102 +17,45 @@ end
 
 function Library:CreateWindow(config)
 	config = config or {}
-	local Window = { Tabs = {}, Connections = {} }
+	local Window = { _G = { WS = 16, JP = 50, InfJump = false, Noclip = false, RainbowUI = false } }
 
-	local ScreenGui = Create("ScreenGui", {
-		Name = config.Name or "ProjectET_v3",
-		Parent = CoreGui,
-		ResetOnSpawn = false
-	})
+	local ScreenGui = Create("ScreenGui", {Name = "ProjectET_v3", Parent = CoreGui, ResetOnSpawn = false})
 
 	-- Main Frame
 	local Main = Create("Frame", {
-		Name = "ET_Main",
-		Size = UDim2.new(0, 500, 0, 300),
+		Name = "ET_Main", Size = UDim2.new(0, 500, 0, 300),
 		Position = UDim2.new(0.5, -250, 0.5, -150),
 		BackgroundColor3 = Color3.fromRGB(12, 12, 12),
-		BorderSizePixel = 0,
-		Active = true,
-		Parent = ScreenGui
+		BorderSizePixel = 0, Active = true, Parent = ScreenGui
 	})
 	Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = Main})
-
 	local MainStroke = Create("UIStroke", {Color = Color3.fromRGB(255,255,255), Thickness = 1.5, Parent = Main})
 
 	-- Toggle Button
 	local ToggleBtn = Create("TextButton", {
-		Name = "ET_Toggle",
-		Size = UDim2.new(0, 40, 0, 40),
-		Position = UDim2.new(0, 20, 0, 20),
-		BackgroundColor3 = Color3.fromRGB(15, 15, 15),
-		Text = "",
-		Parent = ScreenGui
+		Size = UDim2.new(0, 40, 0, 40), Position = UDim2.new(0, 20, 0, 20),
+		BackgroundColor3 = Color3.fromRGB(15, 15, 15), Text = "", Parent = ScreenGui
 	})
 	Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = ToggleBtn})
-
 	local TStroke = Create("UIStroke", {Color = Color3.fromRGB(255,255,255), Thickness = 1.5, Parent = ToggleBtn})
-
-	Create("ImageLabel", {
-		Size = UDim2.new(0, 26, 0, 26),
-		Position = UDim2.new(0.5, -13, 0.5, -13),
-		BackgroundTransparency = 1,
-		Image = "rbxassetid://90854014659104",
-		ZIndex = 5,
-		Parent = ToggleBtn
-	})
+	Create("ImageLabel", {Size = UDim2.new(0,26,0,26), Position = UDim2.new(0.5,-13,0.5,-13), BackgroundTransparency = 1, Image = "rbxassetid://90854014659104", Parent = ToggleBtn})
 
 	-- Title Bar
-	local TitleBar = Create("Frame", {
-		Size = UDim2.new(1, 0, 0, 38),
-		BackgroundColor3 = Color3.fromRGB(18, 18, 18),
-		BorderSizePixel = 0,
-		Parent = Main
-	})
-	Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = TitleBar})
+	local TitleBar = Create("Frame", {Size = UDim2.new(1,0,0,38), BackgroundColor3 = Color3.fromRGB(18,18,18), Parent = Main})
+	Create("UICorner", {CornerRadius = UDim.new(0,8), Parent = TitleBar})
+	Create("ImageLabel", {Size = UDim2.new(0,22,0,22), Position = UDim2.new(0,10,0.5,-11), BackgroundTransparency = 1, Image = "rbxassetid://90854014659104", Parent = TitleBar})
+	Create("TextLabel", {Position = UDim2.new(0,40,0,0), Size = UDim2.new(1,-50,1,0), BackgroundTransparency = 1, Text = config.Title or "Project ET", TextColor3 = Color3.fromRGB(255,255,255), Font = Enum.Font.GothamBold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, Parent = TitleBar})
 
-	Create("ImageLabel", {
-		Size = UDim2.new(0, 22, 0, 22),
-		Position = UDim2.new(0, 10, 0.5, -11),
-		BackgroundTransparency = 1,
-		Image = "rbxassetid://90854014659104",
-		ZIndex = 10,
-		Parent = TitleBar
-	})
+	-- Sidebar & PageContainer
+	local Sidebar = Create("Frame", {Size = UDim2.new(0,120,1,-50), Position = UDim2.new(0,6,0,44), BackgroundColor3 = Color3.fromRGB(15,15,15), Parent = Main})
+	Create("UICorner", {CornerRadius = UDim.new(0,6), Parent = Sidebar})
+	Create("UIListLayout", {Padding = UDim.new(0,5), HorizontalAlignment = Enum.HorizontalAlignment.Center, Parent = Sidebar})
+	Create("UIPadding", {PaddingTop = UDim.new(0,8), Parent = Sidebar})
 
-	Create("TextLabel", {
-		Position = UDim2.new(0, 40, 0, 0),
-		Size = UDim2.new(1, -50, 1, 0),
-		BackgroundTransparency = 1,
-		Text = config.Title or "Project ET",
-		TextColor3 = Color3.fromRGB(255, 255, 255),
-		Font = Enum.Font.GothamBold,
-		TextSize = 14,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 10,
-		Parent = TitleBar
-	})
+	local PageContainer = Create("Frame", {Size = UDim2.new(1,-142,1,-50), Position = UDim2.new(0,132,0,44), BackgroundColor3 = Color3.fromRGB(18,18,18), Parent = Main})
+	Create("UICorner", {CornerRadius = UDim.new(0,6), Parent = PageContainer})
 
-	-- Sidebar
-	local Sidebar = Create("Frame", {
-		Size = UDim2.new(0, 120, 1, -50),
-		Position = UDim2.new(0, 6, 0, 44),
-		BackgroundColor3 = Color3.fromRGB(15, 15, 15),
-		Parent = Main
-	})
-	Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = Sidebar})
-	Create("UIListLayout", {Padding = UDim.new(0, 5), HorizontalAlignment = Enum.HorizontalAlignment.Center, Parent = Sidebar})
-	Create("UIPadding", {PaddingTop = UDim.new(0, 8), Parent = Sidebar})
-
-	-- Page Container
-	local PageContainer = Create("Frame", {
-		Size = UDim2.new(1, -142, 1, -50),
-		Position = UDim2.new(0, 132, 0, 44),
-		BackgroundColor3 = Color3.fromRGB(18, 18, 18),
-		Parent = Main
-	})
-	Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = PageContainer})
-
-	local CurrentTab, CurrentPage = nil, nil
+	local CurrentPage, CurrentTab = nil, nil
 
 	-- Draggable
 	local function MakeDraggable(frame)
@@ -127,9 +68,7 @@ function Library:CreateWindow(config)
 			end
 		end)
 		frame.InputChanged:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-				dragInput = input
-			end
+			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
 		end)
 		UIS.InputChanged:Connect(function(input)
 			if dragging and input == dragInput then
@@ -138,147 +77,55 @@ function Library:CreateWindow(config)
 			end
 		end)
 	end
-
 	MakeDraggable(Main)
 	MakeDraggable(ToggleBtn)
 
-	ToggleBtn.MouseButton1Click:Connect(function()
-		Main.Visible = not Main.Visible
-	end)
+	ToggleBtn.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
 
 	-- Tab Creation
 	function Window:CreateTab(name)
-		local TabBtn = Create("TextButton", {
-			Size = UDim2.new(0.9, 0, 0, 30),
-			BackgroundTransparency = 1,
-			Text = name,
-			TextColor3 = Color3.fromRGB(200, 200, 200),
-			Font = Enum.Font.GothamMedium,
-			TextSize = 12,
-			Parent = Sidebar
-		})
-		Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = TabBtn})
+		local TabBtn = Create("TextButton", {Size = UDim2.new(0.9,0,0,30), BackgroundTransparency = 1, Text = name, TextColor3 = Color3.fromRGB(200,200,200), Font = Enum.Font.GothamMedium, TextSize = 12, Parent = Sidebar})
+		Create("UICorner", {CornerRadius = UDim.new(0,4), Parent = TabBtn})
 
-		local Page = Create("ScrollingFrame", {
-			Size = UDim2.new(1, -10, 1, -10),
-			Position = UDim2.new(0, 5, 0, 5),
-			BackgroundTransparency = 1,
-			Visible = false,
-			ScrollBarThickness = 2,
-			AutomaticCanvasSize = Enum.AutomaticSize.Y,
-			CanvasSize = UDim2.new(0,0,0,0),
-			Parent = PageContainer
-		})
-		Create("UIListLayout", {Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = Page})
-		Create("UIPadding", {PaddingLeft = UDim.new(0, 5), Parent = Page})
+		local Page = Create("ScrollingFrame", {Size = UDim2.new(1,-10,1,-10), Position = UDim2.new(0,5,0,5), BackgroundTransparency = 1, Visible = false, ScrollBarThickness = 2, AutomaticCanvasSize = Enum.AutomaticSize.Y, CanvasSize = UDim2.new(), Parent = PageContainer})
+		Create("UIListLayout", {Padding = UDim.new(0,8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = Page})
+		Create("UIPadding", {PaddingLeft = UDim.new(0,5), Parent = Page})
 
 		TabBtn.MouseButton1Click:Connect(function()
 			if CurrentPage then CurrentPage.Visible = false end
 			if CurrentTab then CurrentTab.BackgroundTransparency = 1 end
-			CurrentPage = Page
-			CurrentTab = TabBtn
+			CurrentPage, CurrentTab = Page, TabBtn
 			Page.Visible = true
 			TabBtn.BackgroundTransparency = 0.9
 		end)
 
 		local Tab = {}
-
 		function Tab:AddHeader(text)
-			Create("TextLabel", {
-				Size = UDim2.new(1, 0, 0, 25),
-				BackgroundTransparency = 1,
-				Text = "» " .. text,
-				TextColor3 = Color3.fromRGB(255, 255, 255),
-				Font = Enum.Font.GothamBold,
-				TextSize = 14,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Parent = Page
-			})
+			Create("TextLabel", {Size = UDim2.new(1,0,0,25), BackgroundTransparency = 1, Text = "» " .. text, TextColor3 = Color3.fromRGB(255,255,255), Font = Enum.Font.GothamBold, TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, Parent = Page})
 		end
-
 		function Tab:AddInfoLabel(text)
-			return Create("TextLabel", {
-				Size = UDim2.new(1, 0, 0, 20),
-				BackgroundTransparency = 1,
-				Text = text,
-				TextColor3 = Color3.fromRGB(180, 180, 180),
-				Font = Enum.Font.Gotham,
-				TextSize = 12,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Parent = Page
-			})
+			return Create("TextLabel", {Size = UDim2.new(1,0,0,20), BackgroundTransparency = 1, Text = text, TextColor3 = Color3.fromRGB(180,180,180), Font = Enum.Font.Gotham, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, Parent = Page})
 		end
-
 		function Tab:AddButton(text, callback)
-			local Btn = Create("TextButton", {
-				Size = UDim2.new(0.95, 0, 0, 30),
-				BackgroundColor3 = Color3.fromRGB(25, 25, 25),
-				Text = text,
-				TextColor3 = Color3.fromRGB(255, 255, 255),
-				Font = Enum.Font.Gotham,
-				TextSize = 13,
-				Parent = Page
-			})
-			Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = Btn})
-			Create("UIStroke", {Color = Color3.fromRGB(40, 40, 40), Parent = Btn})
+			local Btn = Create("TextButton", {Size = UDim2.new(0.95,0,0,30), BackgroundColor3 = Color3.fromRGB(25,25,25), Text = text, TextColor3 = Color3.fromRGB(255,255,255), Font = Enum.Font.Gotham, TextSize = 13, Parent = Page})
+			Create("UICorner", {CornerRadius = UDim.new(0,4), Parent = Btn})
+			Create("UIStroke", {Color = Color3.fromRGB(40,40,40), Parent = Btn})
 			Btn.MouseButton1Click:Connect(callback or function() end)
 		end
-
 		function Tab:AddTextbox(label, placeholder, callback)
-			local Frame = Create("Frame", {Size = UDim2.new(0.95, 0, 0, 35), BackgroundTransparency = 1, Parent = Page})
-			Create("TextLabel", {
-				Size = UDim2.new(0.5, 0, 1, 0),
-				BackgroundTransparency = 1,
-				Text = label,
-				TextColor3 = Color3.fromRGB(180, 180, 180),
-				Font = Enum.Font.Gotham,
-				TextSize = 13,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Parent = Frame
-			})
-			local Input = Create("TextBox", {
-				Size = UDim2.new(0, 60, 0, 25),
-				Position = UDim2.new(1, -65, 0.5, -12),
-				BackgroundColor3 = Color3.fromRGB(30, 30, 30),
-				TextColor3 = Color3.fromRGB(255, 255, 255),
-				Text = placeholder or "",
-				Parent = Frame
-			})
-			Create("UICorner", {CornerRadius = UDim.new(0, 4), Parent = Input})
-			Input.FocusLost:Connect(function(enter)
-				if enter and callback then callback(Input.Text) end
-			end)
+			local Frame = Create("Frame", {Size = UDim2.new(0.95,0,0,35), BackgroundTransparency = 1, Parent = Page})
+			Create("TextLabel", {Size = UDim2.new(0.5,0,1,0), BackgroundTransparency = 1, Text = label, TextColor3 = Color3.fromRGB(180,180,180), Font = Enum.Font.Gotham, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = Frame})
+			local Input = Create("TextBox", {Size = UDim2.new(0,60,0,25), Position = UDim2.new(1,-65,0.5,-12), BackgroundColor3 = Color3.fromRGB(30,30,30), TextColor3 = Color3.fromRGB(255,255,255), Text = placeholder or "", Parent = Frame})
+			Create("UICorner", {CornerRadius = UDim.new(0,4), Parent = Input})
+			Input.FocusLost:Connect(function(enter) if enter and callback then callback(Input.Text) end end)
 		end
-
 		function Tab:AddToggle(text, default, callback)
-			local Frame = Create("Frame", {Size = UDim2.new(0.95, 0, 0, 30), BackgroundTransparency = 1, Parent = Page})
-			Create("TextLabel", {
-				Size = UDim2.new(0.7, 0, 1, 0),
-				BackgroundTransparency = 1,
-				Text = text,
-				TextColor3 = Color3.fromRGB(180, 180, 180),
-				Font = Enum.Font.Gotham,
-				TextSize = 13,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Parent = Frame
-			})
-			local Box = Create("TextButton", {
-				Size = UDim2.new(0, 35, 0, 18),
-				Position = UDim2.new(1, -40, 0.5, -9),
-				BackgroundColor3 = default and Color3.fromRGB(80,80,80) or Color3.fromRGB(30,30,30),
-				Text = "",
-				Parent = Frame
-			})
+			local Frame = Create("Frame", {Size = UDim2.new(0.95,0,0,30), BackgroundTransparency = 1, Parent = Page})
+			Create("TextLabel", {Size = UDim2.new(0.7,0,1,0), BackgroundTransparency = 1, Text = text, TextColor3 = Color3.fromRGB(180,180,180), Font = Enum.Font.Gotham, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = Frame})
+			local Box = Create("TextButton", {Size = UDim2.new(0,35,0,18), Position = UDim2.new(1,-40,0.5,-9), BackgroundColor3 = default and Color3.fromRGB(80,80,80) or Color3.fromRGB(30,30,30), Text = "", Parent = Frame})
 			Create("UICorner", {CornerRadius = UDim.new(1,0), Parent = Box})
-
-			local Circle = Create("Frame", {
-				Size = UDim2.new(0,12,0,12),
-				Position = default and UDim2.new(1,-15,0.5,-6) or UDim2.new(0,3,0.5,-6),
-				BackgroundColor3 = Color3.fromRGB(255,255,255),
-				Parent = Box
-			})
+			local Circle = Create("Frame", {Size = UDim2.new(0,12,0,12), Position = default and UDim2.new(1,-15,0.5,-6) or UDim2.new(0,3,0.5,-6), BackgroundColor3 = Color3.fromRGB(255,255,255), Parent = Box})
 			Create("UICorner", {CornerRadius = UDim.new(1,0), Parent = Circle})
-
 			local state = default
 			Box.MouseButton1Click:Connect(function()
 				state = not state
@@ -287,63 +134,43 @@ function Library:CreateWindow(config)
 				if callback then callback(state) end
 			end)
 		end
-
-		table.insert(Window.Tabs, Tab)
 		return Tab
 	end
 
-	-- Rainbow & Hack Loop (kept from your script)
-	local _G = { WS = 16, JP = 50, InfJump = false, Noclip = false, RainbowUI = false }
-	local LastTime = tick()
-	local FrameCount = 0
-
-	local heartbeat = RunService.Heartbeat:Connect(function()
-		-- Movement
+	-- Core Loop (Movement + Rainbow + InfJump)
+	RunService.Heartbeat:Connect(function()
 		if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-			Player.Character.Humanoid.WalkSpeed = _G.WS
-			Player.Character.Humanoid.JumpPower = _G.JP
-			if _G.Noclip then
+			Player.Character.Humanoid.WalkSpeed = Window._G.WS
+			Player.Character.Humanoid.JumpPower = Window._G.JP
+			if Window._G.Noclip then
 				for _, v in pairs(Player.Character:GetDescendants()) do
 					if v:IsA("BasePart") then v.CanCollide = false end
 				end
 			end
 		end
 
-		-- Rainbow
-		if _G.RainbowUI then
+		if Window._G.RainbowUI then
 			local hue = tick() % 5 / 5
 			local color = Color3.fromHSV(hue, 1, 1)
 			MainStroke.Color = color
 			TStroke.Color = color
 		else
-			MainStroke.Color = Color3.fromRGB(255, 255, 255)
-			TStroke.Color = Color3.fromRGB(255, 255, 255)
-		end
-
-		-- FPS & Server Info (update every second)
-		FrameCount += 1
-		if tick() - LastTime >= 1 then
-			FrameCount = 0
-			LastTime = tick()
+			MainStroke.Color = Color3.fromRGB(255,255,255)
+			TStroke.Color = Color3.fromRGB(255,255,255)
 		end
 	end)
-	table.insert(Window.Connections, heartbeat)
 
 	UIS.JumpRequest:Connect(function()
-		if _G.InfJump and Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
+		if Window._G.InfJump and Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
 			Player.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 		end
 	end)
 
-	-- Auto open first tab when created
-	spawn(function()
-		wait(0.1)
-		if #Window.Tabs > 0 and Window.Tabs[1].Page then
-			Window.Tabs[1].Page.Visible = true
-		end
+	-- Auto open first tab
+	task.delay(0.3, function()
+		if CurrentPage then CurrentPage.Visible = true end
 	end)
 
-	Window._G = _G  -- expose for advanced users
 	return Window
 end
 
