@@ -5,67 +5,88 @@ function Library:Init(hubName)
     local CoreGui = game:GetService("CoreGui")
     local TweenService = game:GetService("TweenService")
     
-    -- Main ScreenGui
     local ET = Instance.new("ScreenGui", CoreGui)
-    ET.Name = "ProjectET_Lib"
+    ET.Name = "ProjectET_v3"
     ET.ResetOnSpawn = false
 
-    -- Main Frame
-    local Main = Instance.new("Frame", ET)
-    Main.Size = UDim2.new(0, 500, 0, 320)
-    Main.Position = UDim2.new(0.5, -250, 0.5, -160)
-    Main.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
-    Main.BorderSizePixel = 0
-    Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 8)
-    
-    local MainStroke = Instance.new("UIStroke", Main)
+    local ET_Main = Instance.new("Frame", ET)
+    ET_Main.Name = "ET_Main"
+    ET_Main.Size = UDim2.new(0, 500, 0, 300)
+    ET_Main.Position = UDim2.new(0.5, -250, 0.5, -150)
+    ET_Main.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+    ET_Main.BorderSizePixel = 0
+    ET_Main.Active = true 
+    Instance.new("UICorner", ET_Main).CornerRadius = UDim.new(0, 8)
+    local MainStroke = Instance.new("UIStroke", ET_Main)
     MainStroke.Color = Color3.fromRGB(255, 255, 255)
-    MainStroke.Thickness = 1.2
+    MainStroke.Thickness = 1.5
 
-    -- Top Bar
-    local TitleBar = Instance.new("Frame", Main)
-    TitleBar.Size = UDim2.new(1, 0, 0, 35)
+    -- Toggle Button
+    local ET_Toggle = Instance.new("TextButton", ET)
+    ET_Toggle.Name = "ET_Toggle"
+    ET_Toggle.Size = UDim2.new(0, 40, 0, 40)
+    ET_Toggle.Position = UDim2.new(0, 20, 0, 20)
+    ET_Toggle.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    ET_Toggle.Text = ""
+    Instance.new("UICorner", ET_Toggle).CornerRadius = UDim.new(0, 8)
+    local TStroke = Instance.new("UIStroke", ET_Toggle)
+    TStroke.Color = Color3.fromRGB(255, 255, 255)
+    TStroke.Thickness = 1.5
+    local TLogo = Instance.new("ImageLabel", ET_Toggle)
+    TLogo.Size = UDim2.new(0, 26, 0, 26)
+    TLogo.Position = UDim2.new(0.5, -13, 0.5, -13)
+    TLogo.BackgroundTransparency = 1
+    TLogo.Image = "rbxassetid://90854014659104"
+
+    -- TitleBar
+    local TitleBar = Instance.new("Frame", ET_Main)
+    TitleBar.Size = UDim2.new(1, 0, 0, 38)
     TitleBar.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
     Instance.new("UICorner", TitleBar).CornerRadius = UDim.new(0, 8)
-    
+    local TitleLogo = Instance.new("ImageLabel", TitleBar)
+    TitleLogo.Size = UDim2.new(0, 22, 0, 22)
+    TitleLogo.Position = UDim2.new(0, 10, 0.5, -11)
+    TitleLogo.BackgroundTransparency = 1
+    TitleLogo.Image = "rbxassetid://90854014659104"
     local Title = Instance.new("TextLabel", TitleBar)
-    Title.Position = UDim2.new(0, 15, 0, 0)
-    Title.Size = UDim2.new(0, 200, 1, 0)
+    Title.Position = UDim2.new(0, 40, 0, 0)
+    Title.Size = UDim2.new(0, 100, 1, 0)
+    Title.BackgroundTransparency = 1
     Title.Text = hubName
     Title.TextColor3 = Color3.white
-    Title.Font = "GothamBold"
+    Title.Font = Enum.Font.GothamBold
     Title.TextSize = 14
     Title.TextXAlignment = "Left"
-    Title.BackgroundTransparency = 1
 
-    -- Sidebar (Tabs Area)
-    local Sidebar = Instance.new("Frame", Main)
-    Sidebar.Size = UDim2.new(0, 120, 1, -45)
-    Sidebar.Position = UDim2.new(0, 8, 0, 40)
+    -- Sidebar
+    local Sidebar = Instance.new("Frame", ET_Main)
+    Sidebar.Size = UDim2.new(0, 120, 1, -50)
+    Sidebar.Position = UDim2.new(0, 6, 0, 44)
     Sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
     Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 6)
-    
     local SLayout = Instance.new("UIListLayout", Sidebar)
     SLayout.Padding = UDim.new(0, 5)
     SLayout.HorizontalAlignment = "Center"
-    Instance.new("UIPadding", Sidebar).PaddingTop = UDim.new(0, 5)
+    Instance.new("UIPadding", Sidebar).PaddingTop = UDim.new(0, 8)
 
     -- Page Container
-    local Container = Instance.new("Frame", Main)
-    Container.Size = UDim2.new(1, -145, 1, -45)
-    Container.Position = UDim2.new(0, 135, 0, 40)
-    Container.BackgroundTransparency = 1
+    local PageContainer = Instance.new("Frame", ET_Main)
+    PageContainer.Size = UDim2.new(1, -142, 1, -50)
+    PageContainer.Position = UDim2.new(0, 132, 0, 44)
+    PageContainer.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    Instance.new("UICorner", PageContainer).CornerRadius = UDim.new(0, 6)
 
-    -- Dragging Logic
-    local function Drag(UI)
+    local CurrentTab, CurrentPage = nil, nil
+
+    local function MakeDraggable(UI)
         local dragging, dragInput, dragStart, startPos
         UI.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = true; dragStart = input.Position; startPos = UI.Position
                 input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
             end
         end)
-        UI.InputChanged:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end end)
+        UI.InputChanged:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end end)
         UIS.InputChanged:Connect(function(input)
             if dragging and input == dragInput then
                 local delta = input.Position - dragStart
@@ -73,149 +94,94 @@ function Library:Init(hubName)
             end
         end)
     end
-    Drag(Main)
+    MakeDraggable(ET_Main); MakeDraggable(ET_Toggle)
+    ET_Toggle.MouseButton1Click:Connect(function() ET_Main.Visible = not ET_Main.Visible end)
 
-    local Tabs = { ActivePage = nil }
-    
-    function Tabs:CreateTab(tabName)
-        local TabBtn = Instance.new("TextButton", Sidebar)
-        TabBtn.Size = UDim2.new(0.9, 0, 0, 30)
-        TabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        TabBtn.BackgroundTransparency = 1
-        TabBtn.Text = tabName
-        TabBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-        TabBtn.Font = "GothamMedium"
-        TabBtn.TextSize = 12
-        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 4)
+    local Tabs = {}
+    function Tabs:AddTab(name)
+        local Tab = Instance.new("TextButton", Sidebar)
+        Tab.Size = UDim2.new(0.9, 0, 0, 30); Tab.BackgroundTransparency = 1
+        Tab.Text = name; Tab.TextColor3 = Color3.fromRGB(200, 200, 200)
+        Tab.Font = Enum.Font.GothamMedium; Tab.TextSize = 12
+        Instance.new("UICorner", Tab).CornerRadius = UDim.new(0, 4)
 
-        local Page = Instance.new("ScrollingFrame", Container)
-        Page.Size = UDim2.new(1, 0, 1, 0)
-        Page.BackgroundTransparency = 1
-        Page.Visible = false
-        Page.ScrollBarThickness = 2
-        Page.CanvasSize = UDim2.new(0,0,0,0)
-        Page.AutomaticCanvasSize = "Y"
-        local PLayout = Instance.new("UIListLayout", Page)
-        PLayout.Padding = UDim.new(0, 6)
+        local Page = Instance.new("ScrollingFrame", PageContainer)
+        Page.Size = UDim2.new(1, -10, 1, -10); Page.Position = UDim2.new(0, 5, 0, 5)
+        Page.BackgroundTransparency = 1; Page.Visible = false
+        Page.ScrollBarThickness = 2; Page.AutomaticCanvasSize = "Y"
+        Instance.new("UIListLayout", Page).Padding = UDim.new(0, 8)
         Instance.new("UIPadding", Page).PaddingLeft = UDim.new(0, 5)
 
-        TabBtn.MouseButton1Click:Connect(function()
-            for _, v in pairs(Container:GetChildren()) do v.Visible = false end
-            for _, v in pairs(Sidebar:GetChildren()) do if v:IsA("TextButton") then v.BackgroundTransparency = 1 end end
-            Page.Visible = true
-            TabBtn.BackgroundTransparency = 0.8
+        Tab.MouseButton1Click:Connect(function()
+            if CurrentPage then CurrentPage.Visible = false end
+            if CurrentTab then CurrentTab.BackgroundTransparency = 1 end
+            CurrentPage, CurrentTab = Page, Tab
+            Page.Visible = true; Tab.BackgroundTransparency = 0.9
         end)
-        
-        -- Set first tab as default
-        if not Tabs.ActivePage then
-            Page.Visible = true
-            TabBtn.BackgroundTransparency = 0.8
-            Tabs.ActivePage = Page
-        end
 
         local Elements = {}
-        
-        -- LABEL ELEMENT
-        function Elements:Label(text)
+        function Elements:AddHeader(text)
             local Label = Instance.new("TextLabel", Page)
-            Label.Size = UDim2.new(0.95, 0, 0, 20)
-            Label.BackgroundTransparency = 1
-            Label.Text = "  " .. text
-            Label.TextColor3 = Color3.fromRGB(150, 150, 150)
-            Label.Font = "Gotham"
-            Label.TextSize = 12
-            Label.TextXAlignment = "Left"
+            Label.Size = UDim2.new(1, 0, 0, 25); Label.BackgroundTransparency = 1
+            Label.Text = "» " .. text; Label.TextColor3 = Color3.white
+            Label.Font = Enum.Font.GothamBold; Label.TextSize = 14; Label.TextXAlignment = "Left"
         end
 
-        -- BUTTON ELEMENT
-        function Elements:Button(text, callback)
+        function Elements:AddButton(text, callback)
             local Btn = Instance.new("TextButton", Page)
-            Btn.Size = UDim2.new(0.95, 0, 0, 32)
-            Btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-            Btn.Text = text
-            Btn.TextColor3 = Color3.white
-            Btn.Font = "Gotham"
-            Btn.TextSize = 13
+            Btn.Size = UDim2.new(0.95, 0, 0, 30); Btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            Btn.Text = text; Btn.TextColor3 = Color3.white; Btn.Font = "Gotham"; Btn.TextSize = 13
             Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4)
             Instance.new("UIStroke", Btn).Color = Color3.fromRGB(40, 40, 40)
-            
             Btn.MouseButton1Click:Connect(callback)
         end
 
-        -- TOGGLE ELEMENT
-        function Elements:Toggle(text, default, callback)
-            local TglFrame = Instance.new("Frame", Page)
-            TglFrame.Size = UDim2.new(0.95, 0, 0, 32)
-            TglFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-            Instance.new("UICorner", TglFrame).CornerRadius = UDim.new(0, 4)
+        function Elements:AddToggle(text, default, callback)
+            local Frame = Instance.new("Frame", Page)
+            Frame.Size = UDim2.new(0.95, 0, 0, 30); Frame.BackgroundTransparency = 1
+            local Label = Instance.new("TextLabel", Frame)
+            Label.Size = UDim2.new(0.7, 0, 1, 0); Label.BackgroundTransparency = 1
+            Label.Text = text; Label.TextColor3 = Color3.fromRGB(180, 180, 180)
+            Label.Font = "Gotham"; Label.TextSize = 13; Label.TextXAlignment = "Left"
             
-            local TglLabel = Instance.new("TextLabel", TglFrame)
-            TglLabel.Position = UDim2.new(0, 10, 0, 0)
-            TglLabel.Size = UDim2.new(1, -50, 1, 0)
-            TglLabel.Text = text
-            TglLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-            TglLabel.Font = "Gotham"
-            TglLabel.TextSize = 13
-            TglLabel.BackgroundTransparency = 1
-            TglLabel.TextXAlignment = "Left"
-
-            local Box = Instance.new("TextButton", TglFrame)
-            Box.Position = UDim2.new(1, -45, 0.5, -9)
-            Box.Size = UDim2.new(0, 35, 0, 18)
-            Box.BackgroundColor3 = default and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(50, 50, 50)
+            local Box = Instance.new("TextButton", Frame)
+            Box.Size = UDim2.new(0, 35, 0, 18); Box.Position = UDim2.new(1, -40, 0.5, -9)
+            Box.BackgroundColor3 = default and Color3.fromRGB(80, 80, 80) or Color3.fromRGB(30, 30, 30)
             Box.Text = ""
             Instance.new("UICorner", Box).CornerRadius = UDim.new(1, 0)
             
             local Circle = Instance.new("Frame", Box)
-            Circle.Size = UDim2.new(0, 14, 0, 14)
-            Circle.Position = default and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
+            Circle.Size = UDim2.new(0, 12, 0, 12)
+            Circle.Position = default and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
             Circle.BackgroundColor3 = Color3.white
             Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
 
             local state = default
             Box.MouseButton1Click:Connect(function()
                 state = not state
-                local targetPos = state and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
-                local targetCol = state and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(50, 50, 50)
-                
-                TweenService:Create(Circle, TweenInfo.new(0.2), {Position = targetPos}):Play()
-                TweenService:Create(Box, TweenInfo.new(0.2), {BackgroundColor3 = targetCol}):Play()
+                Circle:TweenPosition(state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6), "Out", "Quad", 0.15, true)
+                Box.BackgroundColor3 = state and Color3.fromRGB(80, 80, 80) or Color3.fromRGB(30, 30, 30)
                 callback(state)
             end)
         end
 
-        -- TEXTBOX ELEMENT
-        function Elements:TextBox(text, placeholder, callback)
-            local BoxFrame = Instance.new("Frame", Page)
-            BoxFrame.Size = UDim2.new(0.95, 0, 0, 35)
-            BoxFrame.BackgroundTransparency = 1
+        function Elements:AddTextBox(text, placeholder, callback)
+            local Frame = Instance.new("Frame", Page)
+            Frame.Size = UDim2.new(0.95, 0, 0, 35); Frame.BackgroundTransparency = 1
+            local Label = Instance.new("TextLabel", Frame)
+            Label.Size = UDim2.new(0.5, 0, 1, 0); Label.BackgroundTransparency = 1
+            Label.Text = text; Label.TextColor3 = Color3.fromRGB(180, 180, 180)
+            Label.Font = "Gotham"; Label.TextSize = 13; Label.TextXAlignment = "Left"
             
-            local Label = Instance.new("TextLabel", BoxFrame)
-            Label.Size = UDim2.new(0.5, 0, 1, 0)
-            Label.Text = text
-            Label.TextColor3 = Color3.white
-            Label.Font = "Gotham"
-            Label.TextSize = 13
-            Label.BackgroundTransparency = 1
-            Label.TextXAlignment = "Left"
-
-            local Input = Instance.new("TextBox", BoxFrame)
-            Input.Size = UDim2.new(0, 80, 0, 24)
-            Input.Position = UDim2.new(1, -85, 0.5, -12)
-            Input.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            Input.TextColor3 = Color3.white
-            Input.PlaceholderText = placeholder
-            Input.Text = ""
-            Instance.new("UICorner", Input).CornerRadius = UDim.new(0, 4)
-            
-            Input.FocusLost:Connect(function(enter)
-                if enter then callback(Input.Text) end
-            end)
+            local Input = Instance.new("TextBox", Frame)
+            Input.Size = UDim2.new(0, 60, 0, 25); Input.Position = UDim2.new(1, -65, 0.5, -12)
+            Input.BackgroundColor3 = Color3.fromRGB(30, 30, 30); Input.TextColor3 = Color3.white
+            Input.Text = placeholder; Instance.new("UICorner", Input).CornerRadius = UDim.new(0, 4)
+            Input.FocusLost:Connect(function(enter) if enter then callback(Input.Text) end end)
         end
 
         return Elements
     end
-    
     return Tabs
 end
 
